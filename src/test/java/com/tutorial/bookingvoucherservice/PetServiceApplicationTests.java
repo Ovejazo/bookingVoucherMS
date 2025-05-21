@@ -1,4 +1,4 @@
-package com.tutorial.frecuencyclentsservice;
+package com.tutorial.bookingvoucherservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

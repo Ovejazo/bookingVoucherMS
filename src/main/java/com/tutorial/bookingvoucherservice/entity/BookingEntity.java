@@ -1,4 +1,4 @@
-package com.tutorial.frecuencyclentsservice.entity;
+package com.tutorial.bookingvoucherservice.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import javax.persistence.Id;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FrecuencyClentsEntity {
+public class BookingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
