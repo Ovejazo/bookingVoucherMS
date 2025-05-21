@@ -5,25 +5,37 @@ import com.tutorial.bookingvoucherservice.entity.BookingEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tutorial.bookingvoucherservice.modelo.Fee;
+import com.tutorial.bookingvoucherservice.modelo.PersonNumber;
+import com.tutorial.bookingvoucherservice.modelo.Client;
+import com.tutorial.bookingvoucherservice.modelo.Frecuency;
+import org.springframework.web.client.RestTemplate;
+
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+
 @Service
 public class BookingService {
     @Autowired
     BookingRepository bookingRepository;
-
+/*
     @Autowired
     ClientRepository clientRepository;
 
     @Autowired
     KartRepository kartRepository;
 
-    @Autowired
-    ClientService clientService;
+
 
     @Autowired
     KartService kartService;
+*/
+    @Autowired
+    RestTemplate restTemplate;
+
 
     public ArrayList<BookingEntity> getBooking(){
         return (ArrayList<BookingEntity>) bookingRepository.findAll();
@@ -34,13 +46,13 @@ public class BookingService {
     }
 
 
-    public BookingEntity saveBooking(BookingEntity booking) {
+    public BookingEntity saveBooking(BookingEntity booking, String rut) {
         /*
          * Aquí la reserva se hará dependiendo de la tarifa que escoja el cliente
          */
 
         // Conseguimos al cliente que va a pagar.
-        ClientEntity client = clientRepository.findByRut(booking.getPersonRUT());
+        Client client = restTemplate.getForObject("http://clientMS/api/v1/clients/" + rut, Client.class);
         if (client == null) {
             throw new RuntimeException("Cliente no encontrado");
         }if(client.getCash() <= 0){
@@ -133,6 +145,8 @@ public class BookingService {
 
         client.setCash((int) (client.getCash() - totalConIVA));
         client.setFrecuency(client.getFrecuency() + 1); // o según políticas del negocio
+
+        //aquí debería llamar a la función update?
         clientService.updateClient(client);
 
         // Validar que el tiempo inicial esté configurado
