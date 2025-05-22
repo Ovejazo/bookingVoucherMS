@@ -27,11 +27,13 @@ public class BookingController {
         return ResponseEntity.ok(booking);
     }
 
+    /*
     @GetMapping("/voucher/{id}")
     public ResponseEntity<VoucherEntity> getVoucherById(@PathVariable Long id) {
         VoucherEntity voucher = bookingService.getVoucherById(id);
         return ResponseEntity.ok(voucher);
     }
+     */
 
     @PostMapping("/")
     public ResponseEntity<BookingEntity> saveBooking(@RequestBody BookingEntity booking) {
@@ -39,11 +41,13 @@ public class BookingController {
         return ResponseEntity.ok(bookingNew);
     }
 
+    /*
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteBookingById(@PathVariable Long id) throws Exception {
         var isDeleted = bookingService.deleteBooking(id);
         return ResponseEntity.noContent().build();
     }
+     */
 
     @PutMapping("/")
     public ResponseEntity<BookingEntity> updateBooking(@RequestBody BookingEntity booking){

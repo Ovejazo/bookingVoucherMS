@@ -3,6 +3,7 @@ package com.tutorial.bookingvoucherservice.service;
 import com.tutorial.bookingvoucherservice.repository.BookingRepository;
 import com.tutorial.bookingvoucherservice.entity.BookingEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
 import com.tutorial.bookingvoucherservice.modelo.Fee;
@@ -36,6 +37,9 @@ public class BookingService {
     @Autowired
     RestTemplate restTemplate;
 
+    public BookingEntity getBookingById(Long id){
+        return bookingRepository.findById(id).get();
+    }
 
     public ArrayList<BookingEntity> getBooking(){
         return (ArrayList<BookingEntity>) bookingRepository.findAll();
@@ -46,52 +50,28 @@ public class BookingService {
     }
 
 
-    public BookingEntity saveBooking(BookingEntity booking, String rut) {
+    public BookingEntity saveBooking(BookingEntity booking) {
         /*
          * Aquí la reserva se hará dependiendo de la tarifa que escoja el cliente
          */
 
         // Conseguimos al cliente que va a pagar.
-        Client client = restTemplate.getForObject("http://clientMS/api/v1/clients/" + rut, Client.class);
+        Client client = restTemplate.getForObject("http://clientMS/api/v1/clients/rut/" + booking.getPersonRUT(), Client.class);
         if (client == null) {
             throw new RuntimeException("Cliente no encontrado");
         }if(client.getCash() <= 0){
             throw new RuntimeException("El cliente no tiene dinero");
         }
 
-        // Vamos a conseguir los valores de cada opción de tarifa, la duración y las vueltas posibles
-        int tarifaBase = 0;
-        int duracionReservaMin = 0;
-        int vueltas = 0;
 
-        //Aquí aplicamos una tarifa
-        switch (booking.getOptionFee()) {
-            case 1:
-                tarifaBase = 15000;
-                duracionReservaMin = 30;
-                vueltas = 10;
-                break;
-            case 2:
-                tarifaBase = 20000;
-                duracionReservaMin = 35;
-                vueltas = 15;
-                break;
-            case 3:
-                tarifaBase = 25000;
-                duracionReservaMin = 40;
-                vueltas = 20;
-                break;
-            default:
-                throw new RuntimeException("Opción de tarifa inválida.");
-        }
-
+        Fee fee = restTemplate.getForObject("http://feeMS/api/v1/fee/fee/" + booking.getOptionFee(), Fee.class);
         // Validamos si el cliente tiene suficiente dinero
-        if (client.getCash() < tarifaBase) {
+        if (client.getCash() < fee.getFeeBase()) {
             throw new RuntimeException("El cliente no tiene suficiente saldo para realizar la reserva.");
         }
 
         // Colocamos el tiempo máximo de la reserva
-        booking.setLimitTime(duracionReservaMin);
+        booking.setLimitTime(fee.getBookingReservationMin());
 
         // Vamos a pensar en los descuentos por grupo
         int nPersonas = booking.getNumberOfPerson();
@@ -127,7 +107,7 @@ public class BookingService {
         System.out.println("\nDescuento Frecuencia: " + descuentoFrecuencia);
         System.out.println("\nDescuento Cumpleaños: " + descuentoCumplenos);
         System.out.println("\nDescuento día especial: " + descuentoDiaEspecial);
-        double totalSinIVA = tarifaBase - (tarifaBase * descuentoTotal);
+        double totalSinIVA = fee.getFeeBase() - (fee.getFeeBase() * descuentoTotal);
 
         //Vamos hacer el descuento en caso de que sea un día especial
         if(booking.getEspecialDay()){
@@ -147,7 +127,8 @@ public class BookingService {
         client.setFrecuency(client.getFrecuency() + 1); // o según políticas del negocio
 
         //aquí debería llamar a la función update?
-        clientService.updateClient(client);
+        HttpEntity<Client> request = new HttpEntity<>(client);
+        restTemplate.put("http://clientMS/api/v1/clients/", request);
 
         // Validar que el tiempo inicial esté configurado
         if (booking.getInitialTime() == null) {
@@ -202,7 +183,7 @@ public class BookingService {
         */
 
     }
-
+/*
     //Funcion para borrar
     public boolean deleteBooking(Long id) throws Exception {
         try{
@@ -213,11 +194,6 @@ public class BookingService {
         }
 
     }
-
-    public BookingEntity getBookingById(Long id){
-        return bookingRepository.findById(id).get();
-    }
-
     public VoucherEntity getVoucherById(Long id) {
 
 
@@ -288,4 +264,5 @@ public class BookingService {
         // Retornar el voucher creado
         return voucher;
     }
+ */
 }
