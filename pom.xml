@@ -11,7 +11,7 @@
 	<groupId>com.tutorial</groupId>
 	<artifactId>bookingVoucherMS</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>pet-service</name>
+	<name>bookingVoucherMS</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
