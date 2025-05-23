@@ -73,46 +73,38 @@ public class BookingService {
         // Colocamos el tiempo máximo de la reserva
         booking.setLimitTime(fee.getBookingReservationMin());
 
-        // Vamos a pensar en los descuentos por grupo
-        int nPersonas = booking.getNumberOfPerson();
-
-        //Aquí van a ir todos los descuentos
-        double descuentoFrecuencia = 0;
-        double descuentoGrupo = 0;
-        double descuentoCumplenos = 0;
-        double descuentoDiaEspecial = 0;
-
-        if (nPersonas >= 3 && nPersonas <= 5) descuentoGrupo = 0.10;
-        else if (nPersonas >= 6 && nPersonas <= 10) descuentoGrupo = 0.20;
-        else if (nPersonas >= 11 && nPersonas <= 15) descuentoGrupo = 0.30;
-
         // Descuento por frecuencia
-        int visitasCliente = client.getFrecuency();
+        Double descuentoFrecuenciaObj  = restTemplate.getForObject("http://frecuencyClentsMS/api/v1/frecuency/" + client.getFrecuency(), Double.class);
+        double descuentoFrecuencia = descuentoFrecuenciaObj != null ? descuentoFrecuenciaObj : 0.0;
 
+        //Descuento por grupo
+        Double descuentoNumberPersonObj  = restTemplate.getForObject("http://personNumberMS/api/v1/numberPerson/" + booking.getNumberOfPerson(), Double.class);
+        double descuentoNumberPerson = descuentoNumberPersonObj != null ? descuentoNumberPersonObj : 0.0;
 
-        if (visitasCliente >= 7) descuentoFrecuencia = 0.30;
-        else if (visitasCliente >= 5) descuentoFrecuencia = 0.20;
-        else if (visitasCliente >= 2) descuentoFrecuencia = 0.10;
+        //Descuento por día especial
+        double descuentoDiaEspecial = 0.0;
+        if(booking.getEspecialDay()){
+            Double descuentoEspecialDayObj  = restTemplate.getForObject("http://especialDayMS/api/v1/especialDay/", Double.class);
+            descuentoDiaEspecial = descuentoEspecialDayObj != null ? descuentoEspecialDayObj : 0.0;
+        }
 
-        // Vamos a conseguir el cumpleaños del cliente
-
+        //Descuento por cumpleaños
         boolean esCumpleanos = client.getDateOfBirth() == booking.getDateBooking();
-        if ((esCumpleanos) && (nPersonas >= 3)) {
-            if (nPersonas <= 5) descuentoCumplenos = 0.5;
+        double descuentoCumple = 0.0;
+        if (esCumpleanos){
+            Double descuentoCumpleObj  = restTemplate.getForObject("http://especialDayMS/api/v1/birthday/" + booking.getNumberOfPerson(), Double.class);
+            descuentoCumple = descuentoCumpleObj != null ? descuentoCumpleObj : 0.0;
         }
 
         // Aplicamos los descuentos
-        double descuentoTotal = descuentoGrupo + descuentoFrecuencia + descuentoCumplenos + descuentoDiaEspecial;
-        System.out.println("\nDescuento grupo: " + descuentoGrupo);
+        double descuentoTotal = descuentoNumberPerson + descuentoFrecuencia + descuentoCumple + descuentoDiaEspecial;
+        System.out.println("\nDescuento grupo: " + descuentoNumberPerson);
         System.out.println("\nDescuento Frecuencia: " + descuentoFrecuencia);
-        System.out.println("\nDescuento Cumpleaños: " + descuentoCumplenos);
+        System.out.println("\nDescuento Cumpleaños: " + descuentoCumple);
         System.out.println("\nDescuento día especial: " + descuentoDiaEspecial);
         double totalSinIVA = fee.getFeeBase() - (fee.getFeeBase() * descuentoTotal);
 
-        //Vamos hacer el descuento en caso de que sea un día especial
-        if(booking.getEspecialDay()){
-            descuentoDiaEspecial = 0.05;
-        }
+
 
 
         /*
