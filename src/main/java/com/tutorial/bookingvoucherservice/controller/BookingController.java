@@ -1,5 +1,6 @@
 package com.tutorial.bookingvoucherservice.controller;
 
+import com.tutorial.bookingvoucherservice.modelo.Voucher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +10,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/booking")
-@CrossOrigin("*")
 public class BookingController {
 
     @Autowired
@@ -53,5 +53,10 @@ public class BookingController {
     public ResponseEntity<BookingEntity> updateBooking(@RequestBody BookingEntity booking){
         BookingEntity bookingUpdate = bookingService.updateBooking(booking);
         return ResponseEntity.ok(bookingUpdate);
+    }
+
+    @GetMapping("/voucher/{id}")
+    public Voucher getVoucherById(@PathVariable Long id) {
+        return bookingService.getVoucherById(id);
     }
 }

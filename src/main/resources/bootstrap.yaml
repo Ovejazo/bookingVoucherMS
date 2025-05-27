@@ -4,9 +4,9 @@ spring:
   cloud:
     config:
       enabled: true
-      uri: http://config-server-service:8081
+      uri: http://localhost:8081
   datasource:
-    url: jdbc:postgresql://db-bdbookingvoucher-service:5432/bdbookingvoucher
+    url: jdbc:postgresql://localhost:5432/bdbookingvoucher
     username: postgres
     password: 1234
     driver-class-name: org.postgresql.Driver

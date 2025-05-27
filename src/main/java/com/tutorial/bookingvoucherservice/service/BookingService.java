@@ -1,15 +1,14 @@
 package com.tutorial.bookingvoucherservice.service;
 
+import com.tutorial.bookingvoucherservice.modelo.Voucher;
+import com.tutorial.bookingvoucherservice.modelo.*;
 import com.tutorial.bookingvoucherservice.repository.BookingRepository;
 import com.tutorial.bookingvoucherservice.entity.BookingEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
-import com.tutorial.bookingvoucherservice.modelo.Fee;
-import com.tutorial.bookingvoucherservice.modelo.PersonNumber;
-import com.tutorial.bookingvoucherservice.modelo.Client;
-import com.tutorial.bookingvoucherservice.modelo.Frecuency;
+
 import org.springframework.web.client.RestTemplate;
 
 
@@ -138,42 +137,6 @@ public class BookingService {
 
         // Persistir la reserva
         return bookingRepository.save(booking);
-
-        /*
-        if(booking.getOptionFee() == 1){
-            valorTarifa = 15000;
-            /*
-            * Hay que obtener al cliente y restarle el dinero y hacerle un descuento si es que es feriado
-            * o si son muchas personas en un grupo
-
-
-            //encuentro al cliente
-            ClientEntity client = clientRepository.findByRut(booking.getPersonRUT());
-
-            //Consigo el dinero del cliente
-            client.setCash(client.getCash() - valorTarifa);
-
-            //Se puede hacer un update para actualizar al cliente desde la reserva.
-            clientService.updateClient(client);
-
-            return bookingRepository.save(booking);
-
-        //la tarifa vale 20.000
-        } else if (booking.getOptionFee() == 2) {
-            valorTarifa = 20000;
-
-
-            return bookingRepository.save(booking);
-
-        //La tarifa vale 25.000
-        } else if (booking.getOptionFee() == 3) {
-            valorTarifa = 25000;
-
-
-            return bookingRepository.save(booking);
-        }
-        */
-
     }
 /*
     //Funcion para borrar
@@ -186,21 +149,23 @@ public class BookingService {
         }
 
     }
-    public VoucherEntity getVoucherById(Long id) {
-
+ */
+    public Voucher getVoucherById(Long id) {
 
         //Obtnemos la reserva con la que vamos a trabajar
         BookingEntity booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
         //Obtenemos el cliente para conseguir su nombre y RUT
-        ClientEntity client = clientRepository.findByRut(booking.getPersonRUT());
+        Client client = restTemplate.getForObject("http://clientMS/api/v1/clients/rut/" + booking.getPersonRUT(), Client.class);
         if (client == null) {
             throw new RuntimeException("Cliente no encontrado");
+        }if(client.getCash() <= 0){
+            throw new RuntimeException("El cliente no tiene dinero");
         }
 
         //Creamos la instancia Voucher
-        VoucherEntity voucher = new VoucherEntity();
+        Voucher voucher = new Voucher();
 
         //Colocamos las cosas iniciales
         voucher.setName(booking.getMainPerson());
@@ -256,5 +221,4 @@ public class BookingService {
         // Retornar el voucher creado
         return voucher;
     }
- */
 }
