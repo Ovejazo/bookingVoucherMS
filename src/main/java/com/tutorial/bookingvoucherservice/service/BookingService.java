@@ -44,6 +44,10 @@ public class BookingService {
         return (ArrayList<BookingEntity>) bookingRepository.findAll();
     }
 
+    public List<String> getRuts(){
+        return (List<String>) bookingRepository.findAllRuts();
+    }
+
     public BookingEntity updateBooking(BookingEntity booking) {
         return bookingRepository.save(booking);
     }

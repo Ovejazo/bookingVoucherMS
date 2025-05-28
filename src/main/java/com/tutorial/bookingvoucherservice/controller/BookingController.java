@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.tutorial.bookingvoucherservice.service.BookingService;
 import com.tutorial.bookingvoucherservice.entity.BookingEntity;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,6 +27,11 @@ public class BookingController {
     public ResponseEntity<BookingEntity> getBookingById(@PathVariable Long id) {
         BookingEntity booking = bookingService.getBookingById(id);
         return ResponseEntity.ok(booking);
+    }
+
+    @GetMapping("/rut/")
+    public List<String> getRuts() {
+        return bookingService.getRuts();
     }
 
     /*
