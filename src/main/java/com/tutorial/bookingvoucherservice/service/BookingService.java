@@ -87,7 +87,7 @@ public class BookingService {
         //Descuento por día especial
         double descuentoDiaEspecial = 0.0;
         if(booking.getEspecialDay()){
-            Double descuentoEspecialDayObj  = restTemplate.getForObject("http://especialDayMS/api/v1/especialDay/", Double.class);
+            Double descuentoEspecialDayObj  = restTemplate.getForObject("http://especialDayMS/api/v1/especial/", Double.class);
             descuentoDiaEspecial = descuentoEspecialDayObj != null ? descuentoEspecialDayObj : 0.0;
         }
 
